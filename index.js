@@ -28,7 +28,7 @@ async function run() {
     await client.connect();
 
     const serviceCollection = client.db('careerMaker').collection('services');
-
+    const bookingCollection = client.db('careerMaker').collection('bookings');
     app.get('/services', async(req, res)=>{
         const cursor = serviceCollection.find()
         const result = await cursor.toArray();
@@ -38,7 +38,26 @@ async function run() {
     app.get('/services/:id',async(req, res)=>{
         const id = req.params.id;
         const query = {_id : new ObjectId(id)}
-        const result = await serviceCollection.findOne(query)
+        const options = {
+            projection: {   _id :1, serviceImage:1, serviceName:1, serviceDescription:1, serviceProviderImage:1, serviceProviderName:1, servicePrice:1 },
+          };
+        const result = await serviceCollection.findOne(query,options)
+        res.send(result);
+    })
+
+    // booking api
+
+    app.post('/bookings', async(req, res)=>{
+        const booking = req.body;
+        result = await bookingCollection.insertOne(booking);
+        res.send(result);
+    })
+    app.get('/bookings', async(req, res)=>{
+        let query ={};
+        if(req.query?.email){
+            query={email: req.query?.email}
+        }
+        const result = await bookingCollection.find(query).toArray();
         res.send(result);
     })
     // Send a ping to confirm a successful connection
