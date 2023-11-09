@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require ('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const port = process.env.PORT || 5000;
@@ -29,6 +30,17 @@ async function run() {
 
     const serviceCollection = client.db('careerMaker').collection('services');
     const bookingCollection = client.db('careerMaker').collection('bookings');
+
+    app.post('/jwt', async(req, res)=>{
+      const user = req.body;
+      console.log(user)
+      res.send(user);
+    })
+    app.post('/services',async(req, res)=>{
+      const service = req.body;
+      const result= await serviceCollection.insertOne(service);
+      res.send(result);
+    })
     app.get('/services', async(req, res)=>{
         const cursor = serviceCollection.find()
         const result = await cursor.toArray();
